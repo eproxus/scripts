@@ -1,0 +1,23 @@
+#!/bin/bash
+# Count the number of executable lines of code in Erlang files
+# Usage: eloc <files>
+
+echo -e "ELOC\\tcomments file"
+echo -e "----\\t-------- ----"
+
+if [ -z $* ]; then
+    files=`find * \( -iname "*.erl" -o -name "*.hrl" \) -print`
+else
+    files=$*
+fi
+
+for f in ${files}
+do
+    lines=`cat $f | egrep -v "^\s*$|^\s*%" | wc -l`
+    comments=`cat $f | egrep "^\s*%" | wc -l`
+    echo -e ${lines}\\t${comments}\\t ${f}
+    total_lines=$((total_lines+lines))
+    total_comments=$((total_comments+comments))
+done
+
+echo -e "\\n${total_lines}\\t${total_comments}\\t total"
