@@ -24,7 +24,7 @@ Example:
 
 erlang
 ------
-This script switches a symlinked bin folder based on which Erlang
+This python script switches a symlinked bin folder based on which Erlang
 version you want to run.
 
 Usage:
