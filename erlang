@@ -1,0 +1,58 @@
+#!/usr/bin/python
+
+# This script switches a symlinked bin folder based on which Erlang
+# version you want to run.
+
+# It requires the environment variable ERLANG_DIR to be set. It should
+# contain folders for each Erlang version (e.g. r13b04, r14b01
+# etc). Each of those folders should have a 'bin' folder inside. This
+# bin folder is then symlinked into the ERLANG_DIR directory. Add this
+# bin directory to your path.
+
+# The VERSION parameter you supply on the command line should be a
+# prefix (or whole) of any of the directories in the ERLANG_DIR. The
+# newest Erlang version will be used unless specified.
+
+import os
+import sys
+import re
+import optparse
+
+from os import path
+
+def main():
+    usage = "Usage: %prog VERSION"
+    parser = optparse.OptionParser(usage)
+    options, args = parser.parse_args()
+    root = os.environ['ERLANG_DIR']
+    version = parse_version(args[0])
+    relink_erlang(root, version)
+
+def parse_version(verstr):
+    return verstr.lower()
+
+def relink_erlang(root, version):
+    try:
+        contents = [(f, path.normpath(path.join(root, f))) for f
+                    in os.listdir(root)]
+        dirs = filter(lambda (n, p): path.isdir(p), contents)
+        dirs.reverse() # Use newest Erlang version first
+        for (n, p) in dirs:
+            if n.startswith(version):
+                link = path.join(p, "bin")
+                dest = path.join(root, "bin")
+                try:
+                    os.remove(dest)
+                except OSError as (errno, strerror):
+                    pass
+                os.symlink(link, dest)
+                print "Switched to version {0}".format(n.upper())
+                sys.exit(0)
+        print "Version not found: {0}".format(version)
+        sys.exit(1)
+    except OSError as (errno, strerror):
+        print "{0}: {1} ".format(strerror, root)
+        sys.exit(errno)
+
+if __name__ == "__main__":
+    main()
