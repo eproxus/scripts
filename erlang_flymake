@@ -1,0 +1,13 @@
+#!/usr/local/bin/escript
+-export([main/1]).
+
+main([File]) ->
+    Opts = [strong_validation, report,
+            {i, "../include"},
+            {i, "../.."},
+            warn_obsolete_guard, warn_unused_import,
+            warn_shadow_vars, warn_export_vars],
+    compile:file(File, Opts);
+main([]) ->
+    io:format("usage: flymake FILE~n"),
+    halt(1).
